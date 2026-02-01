@@ -24,7 +24,7 @@ interface Student {
   school: string;
   stage: string;
   totalHours: number;
-  program?: Program;
+  programs?: Program;
   programsId?: number;
 }
 
@@ -53,7 +53,7 @@ const Students = () => {
   const enrichStudentsWithPrograms = useCallback(
     (studentsData: Student[], programsData: Program[]): Student[] => {
       return studentsData.map((student) => {
-        const programId = student.program?.id ?? student.programsId;
+        const programId = student.programs?.id ?? student.programsId;
         if (programId) {
           const fullProgram = programsData.find((p) => p.id === programId);
           if (fullProgram) return { ...student, program: fullProgram };
@@ -131,12 +131,12 @@ const Students = () => {
       stage: student.stage,
       totalHours: student.totalHours.toString(),
     });
-    setSelectedProgramId(student.program?.id ?? "");
+    setSelectedProgramId(student.programs?.id ?? "");
     setShowForm(true);
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("هل أنت متأكد من حذف الطالب؟")) return;
+   
     try {
       await fetch(`${STUDENTS_API}/${id}`, { method: "DELETE" });
       setStudents((prev) => prev.filter((s) => s.id !== id));
@@ -282,7 +282,7 @@ const Students = () => {
                     <td className="px-4 py-3 text-muted-foreground">{s.stage}</td>
                     <td className="px-4 py-3">
                       <span className="inline-flex px-2 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full">
-                        {s.program?.title || "غير محدد"}
+                        {s.programs?.title || "غير محدد"}
                       </span>
                     </td>
                     <td className="px-4 py-3">

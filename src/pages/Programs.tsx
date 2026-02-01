@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Plus, Search, Edit, Trash2, BookOpen } from "lucide-react";
+import { Plus, Search, Edit, Trash2, BookOpen, User, Clock, Info } from "lucide-react";
 
 interface Program {
   id: number;
@@ -256,7 +256,8 @@ const Programs = () => {
             {filteredPrograms.map((program) => (
               <div key={program.id} className="dashboard-card">
                 <div className="flex justify-between mb-4">
-                  <span className="badge badge-primary">
+                  <span className="badge badge-primary flex items-center gap-1">
+                    <User size={14} />
                     {program.organization?.name || "غير محدد"}
                   </span>
                   <div className="flex gap-1">
@@ -268,13 +269,24 @@ const Programs = () => {
                     </button>
                   </div>
                 </div>
-                <h3 className="font-bold mb-2">{program.title}</h3>
-                <p className="text-sm text-muted-foreground line-clamp-2">
+
+                <h3 className="font-bold mb-2 flex items-center gap-1">
+                  <BookOpen size={16} />
+                  {program.title}
+                </h3>
+                <p className="text-sm text-muted-foreground line-clamp-2 flex items-center gap-1">
+                  <Info size={14} />
                   {program.description}
                 </p>
                 <div className="text-sm mt-2 flex justify-between">
-                  <span>العمر: {program.minAge}-{program.maxAge}</span>
-                  <span>{program.hours} ساعة</span>
+                  <span className="flex items-center gap-1">
+                    <User size={14} />
+                    العمر: {program.minAge}-{program.maxAge}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock size={14} />
+                    {program.hours} ساعة
+                  </span>
                 </div>
               </div>
             ))}
