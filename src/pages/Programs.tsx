@@ -9,6 +9,7 @@ interface Program {
   minAge: number;
   maxAge: number;
   hours: string;
+  numberOfDays?: number; // ✅ الحقل الجديد
   organization?: {
     organizationID: number;
     name: string;
@@ -38,6 +39,7 @@ const Programs = () => {
     minAge: "",
     maxAge: "",
     hours: "",
+    numberOfDays: "", // ✅ إضافة في الفورم
     organizationId: "",
   });
 
@@ -89,6 +91,7 @@ const Programs = () => {
       minAge: "",
       maxAge: "",
       hours: "",
+      numberOfDays: "", // ✅ إعادة تعيين الحقل الجديد
       organizationId: "",
     });
     setEditingProgram(null);
@@ -110,6 +113,7 @@ const Programs = () => {
       minAge: Number(formData.minAge),
       maxAge: Number(formData.maxAge),
       hours: formData.hours,
+      numberOfDays: Number(formData.numberOfDays), // ✅ إرسال الحقل الجديد
       organizationId: orgId,
     };
 
@@ -142,6 +146,7 @@ const Programs = () => {
       minAge: String(program.minAge),
       maxAge: String(program.maxAge),
       hours: program.hours,
+      numberOfDays: program.numberOfDays ? String(program.numberOfDays) : "", // ✅ تعبئة الحقل عند التعديل
       organizationId: program.organization
         ? String(program.organization.organizationID)
         : "",
@@ -225,7 +230,7 @@ const Programs = () => {
                   <input type="number" name="maxAge" value={formData.maxAge} onChange={handleChange} className="form-input" placeholder="أقصى عمر" required />
                 </div>
                 <input name="hours" value={formData.hours} onChange={handleChange} className="form-input" placeholder="عدد الساعات" required />
-
+                <input name="numberOfDays" value={formData.numberOfDays} onChange={handleChange} type="number" className="form-input" placeholder="عدد الأيام"  required/> {/* ✅ الحقل الجديد */}
                 <select name="organizationId" value={formData.organizationId} onChange={handleChange} className="form-input" required>
                   <option value="">اختر المنظمة</option>
                   {organizations.map((org) => (
@@ -287,6 +292,10 @@ const Programs = () => {
                     <Clock size={14} />
                     {program.hours} ساعة
                   </span>
+                </div>
+                <div className="text-sm mt-1 flex items-center gap-1">
+                  <Clock size={14} />
+                  الأيام: {program.numberOfDays || 0} {/* ✅ عرض عدد الأيام في الكارد */}
                 </div>
               </div>
             ))}
