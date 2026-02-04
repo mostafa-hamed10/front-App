@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Plus, Search, Edit, Trash2, Users, Bot, Clock } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Users, Bot } from "lucide-react";
 
 interface Organization {
   organizationID: number;
@@ -14,7 +14,6 @@ interface Program {
   minAge: string;
   maxAge: string;
   hours: string;
-  numberOfDays: number; // ✅ الحقل الجديد
   organization?: Organization;
 }
 
@@ -45,23 +44,18 @@ const Students = () => {
     age: "",
     school: "",
     stage: "",
+    totalHours: "",
   });
 
-  // ⚡ دمج بيانات الطالب مع البرنامج
   const enrichStudentsWithPrograms = useCallback(
     (studentsData: Student[], programsData: Program[]): Student[] => {
       return studentsData.map((student) => {
         const programId = student.programs?.id ?? student.programsId;
         if (programId) {
           const fullProgram = programsData.find((p) => p.id === programId);
-          if (fullProgram) {
-            // ✅ حساب الساعات الكلية للطالب
-            const totalHours =
-              Number(fullProgram.hours) * (fullProgram.numberOfDays || 0);
-            return { ...student, program: fullProgram, totalHours };
-          }
+          if (fullProgram) return { ...student, program: fullProgram };
         }
-        return { ...student, program: undefined, totalHours: 0 };
+        return { ...student, program: undefined };
       });
     },
     []
@@ -110,7 +104,7 @@ const Students = () => {
   }, [searchTerm, students]);
 
   const resetForm = () => {
-    setFormData({ name: "", age: "", school: "", stage: "" });
+    setFormData({ name: "", age: "", school: "", stage: "", totalHours: "" });
     setSelectedProgramId("");
     setEditingStudent(null);
     setShowForm(false);
@@ -123,6 +117,7 @@ const Students = () => {
       age: student.age.toString(),
       school: student.school,
       stage: student.stage,
+      totalHours: student.totalHours.toString(),
     });
     setSelectedProgramId(student.programs?.id ?? "");
     setShowForm(true);
@@ -148,18 +143,14 @@ const Students = () => {
       alert("البرنامج المختار غير موجود");
       return;
     }
-
-    const totalHours = Number(selectedProgram.hours) * (selectedProgram.numberOfDays || 0);
-
     const payload = {
       name: formData.name,
       age: Number(formData.age),
       school: formData.school,
       stage: formData.stage,
-      totalHours,
+      totalHours: Number(formData.totalHours),
       programsId: selectedProgramId,
     };
-
     try {
       const url = editingStudent
         ? `${STUDENTS_API}/${editingStudent.id}`
@@ -176,7 +167,6 @@ const Students = () => {
       const studentWithProgram: Student = {
         ...savedStudent,
         program: selectedProgram,
-        totalHours,
       };
       setStudents((prev) =>
         editingStudent
@@ -256,6 +246,10 @@ const Students = () => {
                   <th className="text-right px-4 py-3 text-sm font-medium text-muted-foreground">
                     البرنامج
                   </th>
+                   <th className="text-right px-4 py-3 text-sm font-medium text-muted-foreground">
+                   الساعات
+
+                   </th>
                   <th className="text-right px-4 py-3 text-sm font-medium text-muted-foreground">
                     إجراءات
                   </th>
@@ -273,17 +267,16 @@ const Students = () => {
                     <td className="px-4 py-3 text-muted-foreground">{s.age}</td>
                     <td className="px-4 py-3 text-muted-foreground">{s.school}</td>
                     <td className="px-4 py-3 text-muted-foreground">{s.stage}</td>
-
+                    
                     <td className="px-4 py-3 space-y-1">
                       <span className="inline-flex px-2 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full">
-                        {s.programs?.title || "غير محدد"} ({s.totalHours} ساعة)
+                        {s.programs?.title || "غير محدد"}
                       </span>
 
-                      {/* ⭐ Badge UI only */}
-                      <div className="inline-block px-4 py-1 text-base font-semibold text-black rounded-full">
-                        🥇
-                      </div>
+                     
                     </td>
+                    <td className="px-4 py-3 text-muted-foreground">{s.totalHours}</td>
+
 
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
@@ -317,13 +310,111 @@ const Students = () => {
             </table>
           </div>
         )}
+
+        {/* Form Modal */}
+        {showForm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-card rounded-xl p-6 w-full max-w-md mx-4 shadow-xl">
+              <h2 className="text-xl font-bold text-foreground mb-4">
+                {editingStudent ? "تعديل طالب" : "إضافة طالب"}
+              </h2>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="اسم الطالب"
+                  className="w-full px-4 py-2 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  required
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <input
+                    type="number"
+                    placeholder="العمر"
+                    className="w-full px-4 py-2 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                    value={formData.age}
+                    onChange={(e) =>
+                      setFormData({ ...formData, age: e.target.value })
+                    }
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="المرحلة"
+                    className="w-full px-4 py-2 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                    value={formData.stage}
+                    onChange={(e) =>
+                      setFormData({ ...formData, stage: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <input
+                  type="text"
+                  placeholder="المدرسة"
+                  className="w-full px-4 py-2 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                  value={formData.school}
+                  onChange={(e) =>
+                    setFormData({ ...formData, school: e.target.value })
+                  }
+                  required
+                />
+              
+                <select
+                  className="w-full px-4 py-2 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                  value={selectedProgramId}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSelectedProgramId(value ? Number(value) : "");
+                  }}
+                  required
+                >
+                  <option value="">اختر البرنامج</option>
+                  {programs.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.title}
+                    </option>
+                  ))}
+                </select>
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="submit"
+                    className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                  >
+                    حفظ
+                  </button>
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="flex-1 py-2 bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 transition-colors"
+                  >
+                    إلغاء
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* مساعد سواعد */}
+        <div className="fixed bottom-6 left-6">
+          <div className="relative group">
+            <button className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors">
+              <Bot className="w-6 h-6" />
+            </button>
+            <span className="absolute left-1/2 -top-10 -translate-x-1/2 whitespace-nowrap bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+              مساعد سواعد
+            </span>
+          </div>
+        </div>
       </div>
     </DashboardLayout>
   );
 };
 
 export default Students;
-
 
 
 

@@ -9,6 +9,7 @@ import Register from "./pages/Register";
 import Students from "./pages/Students";
 import Programs from "./pages/Programs";
 import Organizations from "./pages/Organizations";
+import Leaderboard from "./pages/Leaderboard"; // ✅ استورد Leaderboard
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,11 +24,15 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
+          {/* Dashboard Routes */}
           <Route path="/dashboard" element={<Navigate to="/dashboard/students" replace />} />
           <Route path="/dashboard/students" element={<Students />} />
           <Route path="/dashboard/programs" element={<Programs />} />
           <Route path="/dashboard/organizations" element={<Organizations />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/dashboard/leaderboard" element={<Leaderboard />} /> {/* ✅ جديد */}
+
+          {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

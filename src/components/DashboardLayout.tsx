@@ -7,7 +7,8 @@ import {
   LogOut, 
   Menu,
   X,
-  GraduationCap
+  GraduationCap,
+  Trophy
 } from "lucide-react";
 import { useState } from "react";
 
@@ -15,10 +16,12 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
+// ✅ إضافة Leaderboard هنا
 const navItems = [
   { name: "الطلاب", path: "/dashboard/students", icon: Users },
   { name: "البرامج", path: "/dashboard/programs", icon: BookOpen },
   { name: "المنظمات", path: "/dashboard/organizations", icon: Building2 },
+  { name: "لوحة الصدارة 🏆", path: "/dashboard/leaderboard", icon: Trophy }, // الجديد
 ];
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
@@ -26,10 +29,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
- const handleLogout = () => {
-  localStorage.removeItem("userName"); // يمسح بيانات تسجيل الدخول
-  navigate("/login", { replace: true }); // replace يمنع الرجوع للشاشة القديمة بالـ back
-};
+  const handleLogout = () => {
+    localStorage.removeItem("userName"); // يمسح بيانات تسجيل الدخول
+    navigate("/login", { replace: true }); // replace يمنع الرجوع للشاشة القديمة بالـ back
+  };
 
   return (
     <div className="min-h-screen flex" dir="rtl">
@@ -78,7 +81,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`nav-link ${isActive ? "active" : ""}`}
+                  className={`nav-link flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 transition-colors ${
+                    isActive ? "bg-primary text-white" : "text-sidebar-foreground"
+                  }`}
                   onClick={() => setSidebarOpen(false)}
                 >
                   <item.icon className="w-5 h-5" />
@@ -92,7 +97,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="p-4 border-t border-sidebar-border">
             <button 
               onClick={handleLogout}
-              className="nav-link w-full text-destructive hover:bg-destructive/10"
+              className="nav-link w-full text-destructive hover:bg-destructive/10 flex items-center gap-3 px-3 py-2 rounded-lg transition-colors"
             >
               <LogOut className="w-5 h-5" />
               <span>تسجيل الخروج</span>
