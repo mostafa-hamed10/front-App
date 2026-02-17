@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Users, Lock, Eye, EyeOff, LogIn } from "lucide-react";
 
@@ -12,14 +12,6 @@ const Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // لو موجود userName مسبقًا في localStorage نروح ع الـ dashboard مباشرة
-  useEffect(() => {
-    const userName = localStorage.getItem("userName");
-    if (userName) {
-      navigate("/dashboard/students");
-    }
-  }, [navigate]);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -30,11 +22,10 @@ const Login = () => {
     setLoading(true);
 
     try {
+      // تسجيل الدخول
       const response = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userName: formData.userName,
           password: formData.password,
@@ -42,18 +33,44 @@ const Login = () => {
       });
 
       if (!response.ok) {
-        // backend بيرجع نص في حالة الخطأ
         const msg = await response.text();
         throw new Error(msg || "اسم المستخدم أو كلمة المرور غير صحيحة");
       }
 
       const data = await response.json();
 
-      // خزّن اسم المستخدم في localStorage بدل token
-      localStorage.setItem("userName", data.userName);
+      // حفظ اسم المستخدم والرول
+      sessionStorage.setItem("userName", data.userName);
+      sessionStorage.setItem("role", (data.role || "STUDENT_ROLE").trim());
 
-      // بعد تسجيل الدخول روح ع الـ dashboard
-      navigate("/dashboard/students");
+      const role = (data.role || "STUDENT_ROLE").trim();
+
+      if (role === "ADMIN_ROLE") {
+        navigate("/dashboard/organizations");
+        return; // يمنع تنفيذ أي كود بعد كده
+      }
+
+      // للطلاب فقط
+      const studentRes = await fetch(
+        `http://localhost:8080/api/student/mydata?username=${data.userName}`
+      );
+      const studentsArray = await studentRes.json();
+
+      if (!studentsArray || studentsArray.length === 0) {
+        navigate("/dashboard/MyStudentScreen"); // أول مرة يدخل
+        return;
+      }
+
+      const student = studentsArray[0];
+
+      const hasProfile = student?.programs?.title?.trim();
+
+      if (hasProfile) {
+        navigate("/dashboard/studentDashboard"); // لو سجل بياناته
+      } else {
+        navigate("/dashboard/MyStudentScreen"); // لأول مرة يدخل
+      }
+
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -69,7 +86,9 @@ const Login = () => {
             <LogIn className="w-8 h-8 text-primary-foreground" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">تسجيل الدخول</h1>
-          <p className="text-muted-foreground mt-2">أدخل بياناتك للوصول إلى حسابك</p>
+          <p className="text-muted-foreground mt-2">
+            أدخل بياناتك للوصول إلى حسابك
+          </p>
         </div>
 
         {error && <p className="text-destructive mb-4">{error}</p>}
@@ -109,7 +128,11 @@ const Login = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </button>
             </div>
           </div>
@@ -122,7 +145,10 @@ const Login = () => {
         <div className="mt-6 text-center">
           <p className="text-muted-foreground">
             ليس لديك حساب؟{" "}
-            <Link to="/register" className="text-primary font-semibold hover:underline">
+            <Link
+              to="/register"
+              className="text-primary font-semibold hover:underline"
+            >
               إنشاء حساب جديد
             </Link>
           </p>

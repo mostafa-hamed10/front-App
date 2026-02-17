@@ -16,13 +16,20 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-// ✅ إضافة Leaderboard هنا
+// جلب الرول من localStorage
+const role = sessionStorage.getItem("role"); // "STUDENT_ROLE" أو "ADMIN_ROLE"
+
+// قائمة التنقل مع تحديد الرول لكل عنصر
 const navItems = [
-  { name: "الطلاب", path: "/dashboard/students", icon: Users },
-  { name: "البرامج", path: "/dashboard/programs", icon: BookOpen },
-  { name: "المنظمات", path: "/dashboard/organizations", icon: Building2 },
-  { name: "لوحة الصدارة 🏆", path: "/dashboard/leaderboard", icon: Trophy }, // الجديد
+  { name: "شاشتي", path: "/dashboard/MyStudentScreen", icon: Users, roles: ["STUDENT_ROLE"] }, // للطالب فقط
+  { name: "الطلاب", path: "/dashboard/students", icon: Users, roles: ["ADMIN_ROLE"] },    // للأدمن فقط
+  { name: "البرامج", path: "/dashboard/programs", icon: BookOpen, roles: ["ADMIN_ROLE"] },
+  { name: "المنظمات", path: "/dashboard/organizations", icon: Building2, roles: ["ADMIN_ROLE"] },
+  { name: "لوحة الصدارة 🏆", path: "/dashboard/leaderboard", icon: Trophy, roles: ["ADMIN_ROLE"] },
 ];
+
+// تصفية العناصر حسب الرول
+const filteredNavItems = navItems.filter(item => item.roles.includes(role || ""));
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const location = useLocation();
@@ -30,8 +37,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem("userName"); // يمسح بيانات تسجيل الدخول
-    navigate("/login", { replace: true }); // replace يمنع الرجوع للشاشة القديمة بالـ back
+    localStorage.removeItem("userName");
+    localStorage.removeItem("role");
+    navigate("/login", { replace: true });
   };
 
   return (
@@ -75,7 +83,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-2">
-            {navItems.map((item) => {
+            {filteredNavItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link
@@ -118,8 +126,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </button>
           <div className="flex items-center gap-4">
             <div className="text-left">
-              <p className="text-sm font-medium text-foreground">مرحباً بكم ، سواعد</p>
-              <p className="text-xs text-muted-foreground">مديرة النظام</p>
+              <p className="text-sm font-medium text-foreground">مرحباً بكم</p>
+              <p className="text-xs text-muted-foreground">{role === "STUDENT_ROLE" ? "طالب" : "مدير النظام"}</p>
             </div>
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
               <span className="text-primary-foreground font-semibold">م</span>

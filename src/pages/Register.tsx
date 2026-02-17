@@ -42,18 +42,22 @@ const Register = () => {
       });
 
       if (!response.ok) {
-        // backend بيرجع نص في حالة الخطأ
         const msg = await response.text();
         throw new Error(msg || "حدث خطأ أثناء التسجيل");
       }
 
       const data = await response.json();
 
-      // خزّن اسم المستخدم في localStorage بدل token
-      localStorage.setItem("userName", data.userName);
+      // خزّن اسم المستخدم ورول (لو backend بيرجعه)
+      sessionStorage.setItem("userName", data.userName);
+      sessionStorage.setItem("role", data.role || "STUDENT_ROLE"); // fallback
 
-      // روح مباشرة على dashboard
-      navigate("/dashboard/students");
+      // توجه حسب الرول
+      if (data.role === "ADMIN_ROLE") {
+        navigate("/dashboard");
+      } else {
+        navigate("/dashboard/MyStudentScreen");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -76,7 +80,7 @@ const Register = () => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="form-label">الاسم الكامل</label>
+            <label className="form-label">اسم المستخدم</label>
             <div className="relative">
               <User className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input

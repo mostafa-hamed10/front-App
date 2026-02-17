@@ -9,7 +9,7 @@ interface Student {
   rank?: number;
 }
 
-const LEADERBOARD_API = "http://localhost:8080/api/students"; // هنجيب الطلاب من نفس API
+const LEADERBOARD_API = "http://localhost:8080/api/studentAdmin"; // هنجيب الطلاب من نفس API
 // لاحقًا ممكن تعمل API مخصوص للـ leaderboard لو حابب
 
 const Leaderboard = () => {

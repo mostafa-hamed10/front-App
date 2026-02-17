@@ -28,7 +28,7 @@ interface Student {
   programsId?: number;
 }
 
-const STUDENTS_API = "http://localhost:8080/api/students";
+const STUDENTS_API = "http://localhost:8080/api/studentAdmin";
 const PROGRAMS_API = "http://localhost:8080/api/programs";
 
 const Students = () => {
@@ -398,17 +398,7 @@ const Students = () => {
           </div>
         )}
 
-        {/* مساعد سواعد */}
-        <div className="fixed bottom-6 left-6">
-          <div className="relative group">
-            <button className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors">
-              <Bot className="w-6 h-6" />
-            </button>
-            <span className="absolute left-1/2 -top-10 -translate-x-1/2 whitespace-nowrap bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-              مساعد سواعد
-            </span>
-          </div>
-        </div>
+      
       </div>
     </DashboardLayout>
   );

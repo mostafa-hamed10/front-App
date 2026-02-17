@@ -45,12 +45,14 @@ const Organizations = () => {
   /* =======================
      Auth Guard
   ======================= */
-  useEffect(() => {
-    const userName = localStorage.getItem("userName");
-    if (!userName) {
-      navigate("/login");
-    }
-  }, [navigate]);
+useEffect(() => {
+  const userName = sessionStorage.getItem("userName");
+  const role = sessionStorage.getItem("role");
+
+  if (!userName || role !== "ADMIN_ROLE") {
+    navigate("/login");
+  }
+}, [navigate]);
 
   /* =======================
      Fetch Data
